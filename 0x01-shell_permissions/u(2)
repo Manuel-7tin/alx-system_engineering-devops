@@ -1,0 +1,154 @@
+SU(1)                                                       User Commands                                                      SU(1)
+
+NNAAMMEE
+       su - run a command with substitute user and group ID
+
+SSYYNNOOPPSSIISS
+       ssuu [options] [--] [_u_s_e_r [_a_r_g_u_m_e_n_t...]]
+
+DDEESSCCRRIIPPTTIIOONN
+       ssuu allows to run commands with a substitute user and group ID.
+
+       When called without arguments, ssuu defaults to running an interactive shell as _r_o_o_t.
+
+       For  backward  compatibility,  ssuu defaults to not change the current directory and to only set the environment variables HHOOMMEE
+       and SSHHEELLLL (plus UUSSEERR and LLOOGGNNAAMMEE if the target _u_s_e_r is not root).  It is recommended to always use the  ----llooggiinn  option  (in‐
+       stead of its shortcut --) to avoid side effects caused by mixing environments.
+
+       This version of ssuu uses PAM for authentication, account and session management.  Some configuration options found in other ssuu
+       implementations, such as support for a wheel group, have to be configured via PAM.
+
+       ssuu is mostly designed for unprivileged users, the recommended solution for privileged users (e.g. scripts executed  by  root)
+       is  to use non-set-user-ID command rruunnuusseerr(1) that does not require authentication and provide separate PAM configuration. If
+       the PAM session is not required at all then the recommend solution is to use command sseettpprriivv(1).
+
+OOPPTTIIOONNSS
+       --cc, ----ccoommmmaanndd=_c_o_m_m_a_n_d
+              Pass _c_o_m_m_a_n_d to the shell with the --cc option.
+
+       --ff, ----ffaasstt
+              Pass --ff to the shell, which may or may not be useful, depending on the shell.
+
+       --gg, ----ggrroouupp=_g_r_o_u_p
+              Specify the primary group.  This option is available to the root user only.
+
+       --GG, ----ssuupppp--ggrroouupp=_g_r_o_u_p
+              Specify a supplemental group.  This option is available to the root user  only.   The  first  specified  supplementary
+              group is also used as a primary group if the option ----ggrroouupp is unspecified.
+
+       --, --ll, ----llooggiinn
+              Start the shell as a login shell with an environment similar to a real login:
+
+                 o      clears all the environment variables except TTEERRMM and variables specified by ----wwhhiitteelliisstt--eennvviirroonnmmeenntt
+
+                 o      initializes the environment variables HHOOMMEE, SSHHEELLLL, UUSSEERR, LLOOGGNNAAMMEE, and PPAATTHH
+
+                 o      changes to the target user's home directory
+
+                 o      sets argv[0] of the shell to '--' in order to make the shell a login shell
+
+       --mm, --pp, ----pprreesseerrvvee--eennvviirroonnmmeenntt
+              Preserve  the  entire  environment, i.e. it does not set HHOOMMEE, SSHHEELLLL, UUSSEERR nor LLOOGGNNAAMMEE.  This option is ignored if the
+              option ----llooggiinn is specified.
+
+       --PP, ----ppttyy
+              Create pseudo-terminal for the session. The independent terminal provides better security as user does not share  ter‐
+              minal  with  the  original session.  This allow to avoid TIOCSTI ioctl terminal injection and another security attacks
+              against terminal file descriptors. The all session is also possible to move to background (e.g. "su --pty  -  username
+              -c  application  &").  If  the  pseudo-terminal is enabled then su command works as a proxy between the sessions (copy
+              stdin and stdout).
+
+              This feature is mostly designed for interactive sessions. If the standard input is not a  terminal,  but  for  example
+              pipe (e.g. echo "date" | su --pty) than ECHO flag for the pseudo-terminal is disabled to avoid messy output.
+
+       --ss, ----sshheellll=_s_h_e_l_l
+              Run the specified _s_h_e_l_l instead of the default.  The shell to run is selected according to the following rules, in or‐
+              der:
+
+                 o      the shell specified with ----sshheellll
+
+                 o      the shell specified in the environment variable SSHHEELLLL, if the ----pprreesseerrvvee--eennvviirroonnmmeenntt option is used
+
+                 o      the shell listed in the passwd entry of the target user
+
+                 o      /bin/sh
+
+              If the target user has a restricted shell (i.e. not listed in /etc/shells), the ----sshheellll option and the SSHHEELLLL  environ‐
+              ment variables are ignored unless the calling user is root.
+
+       ----sseessssiioonn--ccoommmmaanndd==_c_o_m_m_a_n_d
+              Same as --cc but do not create a new session.  (Discouraged.)
+
+       --ww, ----wwhhiitteelliisstt--eennvviirroonnmmeenntt=_l_i_s_t
+              Don't reset environment variables specified in comma separated _l_i_s_t when clears environment for ----llooggiinn. The whitelist
+              is ignored for the environment variables HHOOMMEE, SSHHEELLLL, UUSSEERR, LLOOGGNNAAMMEE, and PPAATTHH.
+
+       --VV, ----vveerrssiioonn
+              Display version information and exit.
+
+       --hh, ----hheellpp
+              Display help text and exit.
+
+SSIIGGNNAALLSS
+       Upon receiving either SSIIGGIINNTT, SSIIGGQQUUIITT or SSIIGGTTEERRMM, ssuu terminates its child and afterwards terminates itself with the  received
+       signal.   The  child  is  terminated  by  SIGTERM,  after  unsuccessful attempt and 2 seconds of delay the child is killed by
+       SIGKILL.
+
+CCOONNFFIIGG FFIILLEESS
+       ssuu reads the _/_e_t_c_/_d_e_f_a_u_l_t_/_s_u and _/_e_t_c_/_l_o_g_i_n_._d_e_f_s configuration files.  The following configuration  items  are  relevant  for
+       ssuu(1):
+
+       FFAAIILL__DDEELLAAYY (number)
+           Delay in seconds in case of an authentication failure. The number must be a non-negative integer.
+
+       EENNVV__PPAATTHH (string)
+           Defines the PATH environment variable for a regular user.  The default value is _/_u_s_r_/_l_o_c_a_l_/_b_i_n_:_/_b_i_n_:_/_u_s_r_/_b_i_n.
+
+       EENNVV__RROOOOTTPPAATTHH (string)
+       EENNVV__SSUUPPAATTHH (string)
+           Defines  the  PATH  environment  variable  for root.  ENV_SUPATH takes precedence.  The default value is _/_u_s_r_/_l_o_c_a_l_/_s_b_i_n_:
+           _/_u_s_r_/_l_o_c_a_l_/_b_i_n_:_/_s_b_i_n_:_/_b_i_n_:_/_u_s_r_/_s_b_i_n_:_/_u_s_r_/_b_i_n.
+
+       AALLWWAAYYSS__SSEETT__PPAATTHH (boolean)
+           If set to _y_e_s and --login and --preserve-environment were not specified ssuu initializes PPAATTHH.
+
+       The environment variable PATH may be different on systems where /bin and /sbin are merged into /usr.
+
+EEXXIITT SSTTAATTUUSS
+       ssuu normally returns the exit status of the command it executed.  If the command was killed by a signal, ssuu returns the number
+       of the signal plus 128.
+
+       Exit status generated by ssuu itself:
+
+                 1      Generic error before executing the requested command
+
+                 126    The requested command could not be executed
+
+                 127    The requested command was not found
+
+FFIILLEESS
+       /etc/pam.d/su    default PAM configuration file
+       /etc/pam.d/su-l  PAM configuration file if --login is specified
+       /etc/default/su  command specific logindef config file
+       /etc/login.defs  global logindef config file
+
+NNOOTTEESS
+       For  security  reasons  ssuu  always logs failed log-in attempts to the btmp file, but it does not write to the lastlog file at
+       all.  This solution allows to control ssuu behavior by PAM configuration.  If you want to use the pam_lastlog module  to  print
+       warning  message  about  failed log-in attempts then the pam_lastlog has to be configured to update the lastlog file as well.
+       For example by:
+
+              session  required  pam_lastlog.so nowtmp
+
+SSEEEE AALLSSOO
+       sseettpprriivv(1), llooggiinn..ddeeffss(5), sshheellllss(5), ppaamm(8), rruunnuusseerr(8)
+
+HHIISSTTOORRYY
+       This ssuu command was derived from coreutils' ssuu, which was based on an implementation by David MacKenzie. The  util-linux  has
+       been refactored by Karel Zak.
+
+AAVVAAIILLAABBIILLIITTYY
+       The su command is part of the util-linux package and is available from Linux Kernel Archive ⟨https://www.kernel.org/pub/linux
+       /utils/util-linux/⟩.
+
+util-linux                                                    July 2014                                                        SU(1)
