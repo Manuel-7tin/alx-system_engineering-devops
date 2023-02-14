@@ -1,0 +1,2 @@
+#!/bin/bash
+tail -n 1 7-file > echo >> 7-file
