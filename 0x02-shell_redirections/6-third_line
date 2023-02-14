@@ -1,2 +1,2 @@
 #!/bin/bash
-{head -3,tail +3} iata
+head -3 iata {tail +3}
