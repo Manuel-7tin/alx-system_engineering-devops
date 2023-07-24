@@ -25,12 +25,21 @@ Once the screenshots are transferred, you can proceed to push the screenshots to
 Make sure to include the steps you followed to use the SFTP command-line tool in your project’s README.md file. This will help the reviewers understand how you performed the file transfer using SFTP.
 
 HOW I USED THE SMTP COMMAND LINE TOOL TO TRANSFER THE FILESIN THIS DIR
+
 #CREATE A CONNECTION
+
 	smtp username@hostname
+
 fill that in with the username and the host nameof the remote terminal
+
 then
+
 Input password
+
 	smtp> password
+
 VOILA, YOU'RE IN!!
+
 Now proceed to transfer files using the put command i.e
+
 	put HP/file.txt root/repo/
